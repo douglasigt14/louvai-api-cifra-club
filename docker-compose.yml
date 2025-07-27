@@ -10,10 +10,3 @@ services:
       - 8080:8080
     environment: 
       PYTHONPATH: /app
-    depends_on:
-      - "selenium"
-
-  selenium:
-    image: selenium/standalone-firefox
-    ports:
-    - 4444:4444
