@@ -26,4 +26,4 @@ def get_cifra(artist, song):
     )
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=os.getenv('PORT', '3000'), debug=True)
+    app.run(host='0.0.0.0', port=os.getenv('PORT', '8080'), debug=True)

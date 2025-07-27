@@ -3,7 +3,7 @@ import os
 import requests
 import decorating
 
-CIFRACLUB_API_URL = os.getenv("CIFRACLUB_API_URL", "http://localhost:3000")
+CIFRACLUB_API_URL = os.getenv("CIFRACLUB_API_URL", "http://localhost:8080")
 app = typer.Typer()
 
 @app.command()

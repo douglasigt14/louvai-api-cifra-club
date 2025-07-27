@@ -22,7 +22,7 @@ docker-compose up
 ```
 
 Esse comando irá subir o projeto em
-[localhost:3000](http://localhost:3000).
+[localhost:8080](http://localhost:8080).
 
 Para os geeks que usam Makefile, basta executar:
 
@@ -34,12 +34,12 @@ make up
 
 Com o projeto rodando, você pode abrir o navegador com a seguinte URL:
 
-http://localhost:3000/artists/coldplay/songs/the-scientist
+http://localhost:8080/artists/coldplay/songs/the-scientist
 
 Ou se preferir obter o json da música pelo terminal, execute:
 
 ```console
-curl localhost:3000/artists/coldplay/songs/the-scientist
+curl localhost:8080/artists/coldplay/songs/the-scientist
 ```
 
 O retorno da API será algo como:
