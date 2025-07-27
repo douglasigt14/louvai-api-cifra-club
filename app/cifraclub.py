@@ -1,47 +1,51 @@
-"""CifraClub Module"""
+"""CifraClub Module - Versão sem Selenium"""
 
+import requests
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 CIFRACLUB_URL = "https://www.cifraclub.com.br/"
 
-class CifraClub():
-    """CifraClub Class"""
-    def __init__(self):
-        self.driver = webdriver.Remote("http://selenium:4444/wd/hub", DesiredCapabilities.FIREFOX)
-
+class CifraClub:
+    """CifraClub Class - sem Selenium"""
+    
     def cifra(self, artist: str, song: str) -> dict:
-        """Lê a página HTML e extrai a cifra e meta dados da música."""
         result = {}
 
-        url = CIFRACLUB_URL + artist + "/" + song
+        # Monta URL amigável
+        artist_slug = artist.lower().replace(" ", "-")
+        song_slug = song.lower().replace(" ", "-")
+        url = CIFRACLUB_URL + f"{artist_slug}/{song_slug}/"
         result['cifraclub_url'] = url
+
         try:
-            self.driver.get(url)
-            self.get_details(result)
-            self.get_cifra(result)
-            self.driver.quit()
-        except: # pylint: disable=bare-except
-            # NoSuchElementException
-            result['error'] = "error description"
+            response = requests.get(url)
+            response.raise_for_status()
+        except Exception:
+            result['error'] = "Erro ao acessar o site do Cifra Club"
+            return result
+
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Detalhes
+        try:
+            result['name'] = soup.find('h1', class_='t1').text.strip()
+            result['artist'] = soup.find('h2', class_='t3').text.strip()
+            img_youtube = soup.find('div', class_='player-placeholder').img['src']
+            cod = img_youtube.split('/vi/')[1].split('/')[0]
+            result['youtube_url'] = f"https://www.youtube.com/watch?v={cod}"
+        except Exception:
+            result['warning'] = "Não foi possível extrair os metadados."
+
+        # Cifra
+        try:
+            cifra_tag = soup.find('pre')
+            if cifra_tag:
+                linhas = cifra_tag.get_text().split('\n')
+                result['cifra'] = [linha for linha in linhas if linha.strip()]
+            else:
+                result['cifra'] = []
+                result['warning'] = "Cifra não encontrada no HTML."
+        except Exception:
+            result['error'] = "Erro ao extrair a cifra"
 
         return result
-
-    def get_details(self, result):
-        """Obtêm os meta dados da música"""
-        content = self.driver.find_element(By.CLASS_NAME, 'cifra').get_attribute('outerHTML')
-        soup = BeautifulSoup(content, 'html.parser')
-        result['name'] = soup.find('h1', class_='t1').text
-        result['artist'] = soup.find('h2', class_='t3').text
-
-        img_youtube = soup.find('div', class_='player-placeholder').img['src']
-        cod = img_youtube.split('/vi/')[1].split('/')[0]
-        result['youtube_url'] = f"https://www.youtube.com/watch?v={cod}"
-
-    def get_cifra(self, result):
-        """Obtêm a cifra da música e converte para json"""
-        content = self.driver.find_element(By.CLASS_NAME, 'cifra_cnt').get_attribute('outerHTML')
-        soup = BeautifulSoup(content, 'html.parser')
-        result['cifra'] = soup.find('pre').text.split('\n')
