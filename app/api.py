@@ -2,7 +2,8 @@
 
 import os
 from flask import Flask, json
-from cifraclub import CifraClub
+from cifraclub import CifraClub, CifraClubLink  # importar as duas classes
+from urllib.parse import unquote
 
 app = Flask(__name__)
 
@@ -18,9 +19,20 @@ def home():
 @app.route('/artists/<artist>/songs/<song>')
 def get_cifra(artist, song):
     """Get cifra by artist and song"""
-    cifrablub = CifraClub()
+    cifraclub = CifraClub()
     return app.response_class(
-        response=json.dumps(cifrablub.cifra(artist, song), ensure_ascii=False),
+        response=json.dumps(cifraclub.cifra(artist, song), ensure_ascii=False),
+        status=200,
+        mimetype='application/json'
+    )
+
+@app.route('/link/<path:url>')
+def get_cifra_by_link(url):
+    """Get cifra by full Cifra Club URL"""
+    url_decoded = unquote(url)
+    link_handler = CifraClubLink()
+    return app.response_class(
+        response=json.dumps(link_handler.cifra(url_decoded), ensure_ascii=False),
         status=200,
         mimetype='application/json'
     )
